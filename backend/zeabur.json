@@ -1,0 +1,11 @@
+{
+  "name": "shadowlog-backend",
+  "framework": "nodejs",
+  "buildCommand": "npm run build",
+  "startCommand": "npm run start",
+  "installCommand": "npm install",
+  "nodeVersion": "18",
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

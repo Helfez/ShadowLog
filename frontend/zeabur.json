@@ -1,0 +1,9 @@
+{
+  "name": "shadowlog-frontend",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "startCommand": "npm run preview",
+  "nodeVersion": "18"
+}
