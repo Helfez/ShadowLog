@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  entries DiaryEntry[]
+
+  @@map("users")
+}
+
+model DiaryEntry {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // User relation
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // AI Analysis Results
+  aiSentiment String?  @map("ai_sentiment") // JSON as string for SQLite
+  aiTags      String?  @map("ai_tags")      // JSON array as string for SQLite
+  aiSummary   String?  @map("ai_summary")
+
+  // Search and indexing
+  searchVector String? @map("search_vector") // For full-text search
+
+  @@map("diary_entries")
+}
+
+model AICache {
+  id        String   @id @default(cuid())
+  key       String   @unique // Hash of input content
+  result    String   // Cached AI result as JSON string for SQLite
+  type      String   // 'sentiment', 'tags', 'summary', etc.
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+
+  @@map("ai_cache")
+}
