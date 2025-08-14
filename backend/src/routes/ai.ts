@@ -11,7 +11,7 @@ import {
   ApiResponse 
 } from '@/types/api';
 
-const router = Router();
+const router: Router = Router();
 const ai = AIService.getInstance();
 
 // Apply authentication and rate limiting to all AI routes

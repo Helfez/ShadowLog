@@ -4,7 +4,7 @@ import { authenticateToken } from '@/middleware/auth';
 import DatabaseService from '@/services/database';
 import { SearchRequest, SearchResponse, DiaryEntryResponse, ApiResponse } from '@/types/api';
 
-const router = Router();
+const router: Router = Router();
 const db = DatabaseService.getInstance();
 
 // Apply authentication to all search routes
@@ -76,7 +76,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const searchTime = Date.now() - startTime;
     
     // Transform entries to response format
-    const transformedEntries: DiaryEntryResponse[] = entries.map(entry => ({
+    const transformedEntries: DiaryEntryResponse[] = entries.map((entry: any) => ({
       id: entry.id,
       title: entry.title,
       content: entry.content,
@@ -136,7 +136,7 @@ router.get('/quick', async (req: Request, res: Response, next: NextFunction) => 
       }
     });
     
-    const suggestions = entries.map(entry => ({
+    const suggestions = entries.map((entry: any) => ({
       id: entry.id,
       title: entry.title,
       createdAt: entry.createdAt.toISOString(),

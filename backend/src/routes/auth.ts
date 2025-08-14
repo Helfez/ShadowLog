@@ -5,7 +5,7 @@ import DatabaseService from '@/services/database';
 import { authLimiter } from '@/middleware/rateLimiter';
 import { RegisterRequest, LoginRequest, AuthResponse, ApiResponse } from '@/types/api';
 
-const router = Router();
+const router: Router = Router();
 const db = DatabaseService.getInstance();
 
 // Apply rate limiting to all auth routes

@@ -13,7 +13,7 @@ import {
   ApiResponse 
 } from '@/types/api';
 
-const router = Router();
+const router: Router = Router();
 const db = DatabaseService.getInstance();
 const ai = AIService.getInstance();
 
@@ -75,7 +75,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     ]);
     
     // Transform entries to response format
-    const transformedEntries: DiaryEntryResponse[] = entries.map(entry => ({
+    const transformedEntries: DiaryEntryResponse[] = entries.map((entry: any) => ({
       id: entry.id,
       title: entry.title,
       content: entry.content,
