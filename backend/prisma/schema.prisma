@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -36,8 +36,8 @@ model DiaryEntry {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // AI Analysis Results
-  aiSentiment String?  @map("ai_sentiment") // JSON as string for SQLite
-  aiTags      String?  @map("ai_tags")      // JSON array as string for SQLite
+  aiSentiment Json?    @map("ai_sentiment") // Native JSON for PostgreSQL
+  aiTags      String[] @map("ai_tags")      // Native string array for PostgreSQL
   aiSummary   String?  @map("ai_summary")
 
   // Search and indexing
