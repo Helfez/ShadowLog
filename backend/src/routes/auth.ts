@@ -32,7 +32,7 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
       data: {
         email: data.email,
         password: hashedPassword,
-        name: data.name,
+        name: data.name || null,
       },
       select: {
         id: true,
@@ -54,7 +54,7 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
         user: {
           id: user.id,
           email: user.email,
-          name: user.name,
+          ...(user.name && { name: user.name }),
         },
         token,
       },
@@ -100,7 +100,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         user: {
           id: user.id,
           email: user.email,
-          name: user.name,
+          ...(user.name && { name: user.name }),
         },
         token,
       },
@@ -123,7 +123,7 @@ router.get('/me', async (req: Request, res: Response, next: NextFunction) => {
       throw new AppError('Access token required', 401);
     }
     
-    const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    const decoded = JSON.parse(Buffer.from(token.split('.')[1]!, 'base64').toString());
     
     const user = await db.getClient().user.findUnique({
       where: { id: decoded.id },
@@ -160,7 +160,7 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
       throw new AppError('Access token required', 401);
     }
     
-    const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    const decoded = JSON.parse(Buffer.from(token.split('.')[1]!, 'base64').toString());
     
     // Verify user still exists
     const user = await db.getClient().user.findUnique({

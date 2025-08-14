@@ -21,7 +21,7 @@ export function generateToken(payload: object): string {
   
   return jwt.sign(payload, secret, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  });
+  } as jwt.SignOptions);
 }
 
 export function verifyToken(token: string): any {

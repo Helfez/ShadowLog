@@ -25,8 +25,8 @@ export const updateEntrySchema = z.object({
 
 // Query validation schemas
 export const getEntriesQuerySchema = z.object({
-  page: z.string().transform(Number).pipe(z.number().min(1)).optional(),
-  limit: z.string().transform(Number).pipe(z.number().min(1).max(100)).optional(),
+  page: z.coerce.number().min(1).optional(),
+  limit: z.coerce.number().min(1).max(100).optional(),
   search: z.string().max(200).optional(),
   sortBy: z.enum(['createdAt', 'updatedAt', 'title']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),

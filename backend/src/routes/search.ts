@@ -101,7 +101,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     
     res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -148,9 +148,9 @@ router.get('/quick', async (req: Request, res: Response, next: NextFunction) => 
       data: { suggestions },
     };
     
-    res.json(response);
+    return res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

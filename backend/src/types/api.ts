@@ -47,7 +47,7 @@ export interface DiaryEntryResponse {
   updatedAt: string;
   aiSentiment?: SentimentAnalysis;
   aiTags?: string[];
-  aiSummary?: string;
+  aiSummary?: string | null;
 }
 
 export interface GetEntriesQuery {
@@ -76,6 +76,7 @@ export interface SentimentAnalysis {
   label: 'positive' | 'negative' | 'neutral' | 'mixed';
   confidence: number; // 0 to 1
   emotions?: string[];
+  [key: string]: any; // Index signature for Prisma JSON compatibility
 }
 
 export interface AIAnalysisRequest {

@@ -41,7 +41,11 @@ export async function authenticateToken(
       throw new AppError('User not found', 401);
     }
 
-    req.user = user;
+    req.user = {
+      id: user.id,
+      email: user.email,
+      ...(user.name && { name: user.name })
+    };
     next();
   } catch (error) {
     if (error instanceof AppError) {

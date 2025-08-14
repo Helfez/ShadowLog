@@ -62,7 +62,7 @@ router.post('/analyze', async (req: Request, res: Response, next: NextFunction) 
     
     res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -87,7 +87,7 @@ router.post('/writing-assist', async (req: Request, res: Response, next: NextFun
     
     res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -111,9 +111,9 @@ router.post('/sentiment', async (req: Request, res: Response, next: NextFunction
       message: 'Sentiment analysis completed'
     };
     
-    res.json(response);
+    return res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -137,9 +137,9 @@ router.post('/tags', async (req: Request, res: Response, next: NextFunction) => 
       message: 'Tags generated successfully'
     };
     
-    res.json(response);
+    return res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -163,9 +163,9 @@ router.post('/summary', async (req: Request, res: Response, next: NextFunction) 
       message: 'Summary generated successfully'
     };
     
-    res.json(response);
+    return res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

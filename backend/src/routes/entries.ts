@@ -98,7 +98,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     
     res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -106,6 +106,9 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, error: 'Entry ID is required' });
+    }
     const userId = req.user!.id;
     
     const entry = await db.getClient().diaryEntry.findFirst({
@@ -142,9 +145,9 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
       data: transformedEntry,
     };
     
-    res.json(response);
+    return res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -197,7 +200,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     
     res.status(201).json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -205,6 +208,9 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, error: 'Entry ID is required' });
+    }
     const data = validateRequest(updateEntrySchema, req.body) as UpdateEntryRequest;
     const userId = req.user!.id;
     
@@ -218,7 +224,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
     
     // Update entry
-    const entry = await db.getClient().diaryEntry.update({
+    const updatedEntry = await db.getClient().diaryEntry.update({
       where: { id },
       data: {
         ...(data.title && { title: data.title }),
@@ -238,20 +244,20 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     
     // Re-process AI analysis if content changed
     if (data.content) {
-      processAIAnalysis(entry.id, data.content).catch(error => {
-        console.error('AI analysis failed for entry:', entry.id, error);
+      processAIAnalysis(updatedEntry.id, data.content).catch(error => {
+        console.error('AI analysis failed for entry:', updatedEntry.id, error);
       });
     }
     
     const transformedEntry: DiaryEntryResponse = {
-      id: entry.id,
-      title: entry.title,
-      content: entry.content,
-      createdAt: entry.createdAt.toISOString(),
-      updatedAt: entry.updatedAt.toISOString(),
-      aiSentiment: entry.aiSentiment as any,
-      aiTags: entry.aiTags,
-      aiSummary: entry.aiSummary,
+      id: updatedEntry.id,
+      title: updatedEntry.title,
+      content: updatedEntry.content,
+      createdAt: updatedEntry.createdAt.toISOString(),
+      updatedAt: updatedEntry.updatedAt.toISOString(),
+      aiSentiment: updatedEntry.aiSentiment as any,
+      aiTags: updatedEntry.aiTags,
+      aiSummary: updatedEntry.aiSummary,
     };
     
     const response: ApiResponse<DiaryEntryResponse> = {
@@ -260,9 +266,9 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
       message: 'Entry updated successfully'
     };
     
-    res.json(response);
+    return res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -270,6 +276,9 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, error: 'Entry ID is required' });
+    }
     const userId = req.user!.id;
     
     // Check if entry exists and belongs to user
@@ -286,18 +295,19 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       where: { id }
     });
     
-    const response: ApiResponse = {
+    const response: ApiResponse<null> = {
       success: true,
+      data: null,
       message: 'Entry deleted successfully'
     };
     
-    res.json(response);
+    return res.json(response);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
-// Background AI analysis function
+// ...
 async function processAIAnalysis(entryId: string, content: string): Promise<void> {
   try {
     const [sentiment, tags, summary] = await Promise.all([
