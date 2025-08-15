@@ -1,28 +1,35 @@
-# Multi-stage build for production optimization
-FROM node:18-alpine AS builder
+# Multi-stage build for production optimization with pnpm workspace support
+FROM node:22-alpine AS builder
+
+# Install pnpm
+RUN npm install -g pnpm
 
 # Set working directory
-WORKDIR /app
+WORKDIR /src
 
-# Copy package files
+# Copy workspace configuration
+COPY pnpm-workspace.yaml ./
 COPY package*.json ./
-COPY tsconfig.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Copy backend package files
+COPY backend/package*.json ./backend/
+COPY backend/tsconfig.json ./backend/
 
-# Copy source code
-COPY src ./src
-COPY prisma ./prisma
+# Install dependencies using pnpm workspace
+RUN pnpm install --frozen-lockfile
 
-# Generate Prisma client
-RUN npx prisma generate
+# Copy backend source code
+COPY backend/src ./backend/src
+COPY backend/prisma ./backend/prisma
 
-# Build the application
-RUN npm run build
+# Generate Prisma client in backend workspace
+RUN pnpm --filter shadowlog-backend exec prisma generate
+
+# Build the backend application
+RUN pnpm --filter shadowlog-backend run build
 
 # Production stage
-FROM node:18-alpine AS production
+FROM node:22-alpine AS production
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
@@ -34,11 +41,11 @@ RUN adduser -S nodejs -u 1001
 # Set working directory
 WORKDIR /app
 
-# Copy built application
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
-COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
+# Copy built application from backend workspace
+COPY --from=builder --chown=nodejs:nodejs /src/backend/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /src/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /src/backend/package*.json ./
+COPY --from=builder --chown=nodejs:nodejs /src/backend/prisma ./prisma
 
 # Switch to non-root user
 USER nodejs
