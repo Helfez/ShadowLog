@@ -1,8 +1,9 @@
 # Multi-stage build for production optimization with pnpm workspace support
 FROM node:22-alpine AS builder
 
-# Install pnpm
+# Install pnpm and OpenSSL
 RUN npm install -g pnpm
+RUN apk add --no-cache openssl
 
 # Set working directory
 WORKDIR /src
@@ -25,8 +26,8 @@ COPY backend/prisma ./backend/prisma
 # Generate Prisma client in backend workspace
 RUN pnpm --filter shadowlog-backend exec prisma generate
 
-# Build the backend application
-RUN pnpm --filter shadowlog-backend run build
+# Build the backend application (skip postbuild in Docker)
+RUN pnpm --filter shadowlog-backend run tsc
 
 # Production stage
 FROM node:22-alpine AS production
