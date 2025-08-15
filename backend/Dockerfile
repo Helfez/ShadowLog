@@ -16,7 +16,7 @@ COPY backend/package*.json ./backend/
 COPY backend/tsconfig.json ./backend/
 
 # Install dependencies using pnpm workspace
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copy backend source code
 COPY backend/src ./backend/src
