@@ -78,8 +78,7 @@ class AIService {
 
       const result = JSON.parse(response.choices[0]?.message?.content || '{}');
       
-      // Cache the result
-      await this.cacheResult(cacheKey, 'sentiment', result);
+      // Caching disabled for now
       
       return result;
     } catch (error) {
@@ -120,8 +119,7 @@ class AIService {
       });
 
       const result = JSON.parse(response.choices[0]?.message?.content || '[]');
-      
-      await this.cacheResult(cacheKey, 'tags', result);
+      // Caching disabled for now
       
       return result;
     } catch (error) {

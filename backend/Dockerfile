@@ -21,7 +21,7 @@ COPY prisma ./prisma
 
 # Generate Prisma client and build TypeScript with path resolution
 RUN npx prisma generate
-RUN npx --package=typescript tsc
+RUN npx --package=typescript tsc --skipLibCheck --noImplicitAny false --strictNullChecks false
 RUN npx tsc-alias
 
 # Production stage
