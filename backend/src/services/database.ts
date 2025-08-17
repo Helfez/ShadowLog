@@ -54,6 +54,9 @@ class DatabaseService {
   // Cleanup expired AI cache entries
   public async cleanupExpiredCache(): Promise<void> {
     try {
+      // Check if ai_cache table exists before cleanup
+      await this.prisma.$queryRaw`SELECT 1 FROM ai_cache LIMIT 1`;
+      
       const result = await this.prisma.aICache.deleteMany({
         where: {
           expiresAt: {
@@ -66,7 +69,12 @@ class DatabaseService {
         console.log(`🧹 Cleaned up ${result.count} expired cache entries`);
       }
     } catch (error) {
-      console.error('❌ Cache cleanup failed:', error);
+      // Silently ignore if table doesn't exist (during initial setup)
+      if (error instanceof Error && error.message.includes('does not exist')) {
+        console.log('ℹ️ AI cache table not yet created, skipping cleanup');
+      } else {
+        console.error('❌ Cache cleanup failed:', error);
+      }
     }
   }
 }
