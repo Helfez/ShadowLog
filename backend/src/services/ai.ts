@@ -6,14 +6,20 @@ import DatabaseService from './database';
 
 class AIService {
   private static instance: AIService;
-  private openai: OpenAI;
+  private openai: OpenAI | null;
   private redis: Redis | null = null;
   private db: DatabaseService;
 
   private constructor() {
-    this.openai = new OpenAI({
-      apiKey: getEnvVar('OPENAI_API_KEY'),
-    });
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (apiKey) {
+      this.openai = new OpenAI({
+        apiKey: apiKey,
+      });
+    } else {
+      console.warn('OPENAI_API_KEY not provided, AI features disabled');
+      this.openai = null;
+    }
     
     // Make Redis optional for development
     try {
@@ -37,12 +43,14 @@ class AIService {
 
   // Sentiment Analysis
   public async analyzeSentiment(content: string): Promise<SentimentAnalysis> {
-    const cacheKey = generateCacheKey(content, 'sentiment');
-    
-    // Check cache first
-    const cached = await this.getCachedResult(cacheKey, 'sentiment');
-    if (cached) {
-      return cached as SentimentAnalysis;
+    if (!this.openai) {
+      console.warn('OpenAI not available, returning neutral sentiment');
+      return {
+        score: 0,
+        label: 'neutral',
+        confidence: 0,
+        emotions: []
+      };
     }
 
     try {
@@ -82,11 +90,9 @@ class AIService {
 
   // Generate Tags
   public async generateTags(content: string): Promise<string[]> {
-    const cacheKey = generateCacheKey(content, 'tags');
-    
-    const cached = await this.getCachedResult(cacheKey, 'tags');
-    if (cached) {
-      return cached as string[];
+    if (!this.openai) {
+      console.warn('OpenAI not available, returning empty tags');
+      return [];
     }
 
     try {
