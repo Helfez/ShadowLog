@@ -21,7 +21,7 @@ COPY prisma ./prisma
 
 # Generate Prisma client and build TypeScript with path resolution
 RUN npx prisma generate
-RUN npx tsc
+RUN npx --package=typescript tsc
 RUN npx tsc-alias
 
 # Production stage
@@ -39,7 +39,7 @@ WORKDIR /app
 
 # Copy package files and install production dependencies only
 COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --only=production && npm cache clean --force
 
 # Copy built application and Prisma files
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
