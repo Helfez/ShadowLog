@@ -130,11 +130,9 @@ class AIService {
 
   // Generate Summary
   public async generateSummary(content: string): Promise<string> {
-    const cacheKey = generateCacheKey(content, 'summary');
-    
-    const cached = await this.getCachedResult(cacheKey, 'summary');
-    if (cached) {
-      return cached as string;
+    if (!this.openai) {
+      console.warn('OpenAI not available, returning original content as summary');
+      return content.substring(0, 200) + '...';
     }
 
     try {
@@ -158,7 +156,7 @@ class AIService {
 
       const result = response.choices[0]?.message?.content || '';
       
-      await this.cacheResult(cacheKey, 'summary', result);
+      // Caching disabled for now
       
       return result;
     } catch (error) {
@@ -169,15 +167,14 @@ class AIService {
 
   // Writing Assistant
   public async assistWriting(prompt: string, context?: string, maxTokens: number = 500): Promise<string[]> {
-    try {
-      const systemMessage = `You are a helpful writing assistant for diary entries.
-      Provide thoughtful suggestions to help improve or continue the writing.
-      Be empathetic, supportive, and respectful of personal experiences.
-      Return suggestions as a JSON array of strings.`;
+    if (!this.openai) {
+      console.warn('OpenAI not available, returning empty suggestions');
+      return [];
+    }
 
-      const userMessage = context 
-        ? `Context: ${context}\n\nPrompt: ${prompt}`
-        : prompt;
+    try {
+      const systemMessage = `You are a helpful writing assistant. Provide ${maxTokens > 300 ? 'detailed' : 'concise'} suggestions to improve the given text.`;
+      const userMessage = context ? `Context: ${context}\n\nImprove: ${prompt}` : `Improve: ${prompt}`;
 
       const response = await this.openai.chat.completions.create({
         model: getEnvVar('OPENAI_MODEL', 'gpt-3.5-turbo'),
